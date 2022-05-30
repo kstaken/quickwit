@@ -80,3 +80,6 @@ build-docs:
 build-ui:
 	@yarn --cwd quickwit-ui install
 	@yarn --cwd quickwit-ui build
+
+rm-postgres:
+	rm -fr /tmp/quickwit/services/postgres

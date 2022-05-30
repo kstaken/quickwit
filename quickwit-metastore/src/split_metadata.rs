@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-use core::fmt;
 use std::collections::BTreeSet;
 use std::ops::{Range, RangeInclusive};
 use std::str::FromStr;
@@ -137,6 +136,17 @@ pub enum SplitState {
     MarkedForDeletion,
 }
 
+impl SplitState {
+    /// Returns a string representation of the given enum.
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            SplitState::Staged => "Staged",
+            SplitState::Published => "Published",
+            SplitState::MarkedForDeletion => "MarkedForDeletion",
+        }
+    }
+}
+
 impl FromStr for SplitState {
     type Err = String;
 
@@ -150,12 +160,6 @@ impl FromStr for SplitState {
             _ => return Err(format!("Unknown split state `{}`.", input)),
         };
         Ok(split_state)
-    }
-}
-
-impl fmt::Display for SplitState {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:?}", self)
     }
 }
 
