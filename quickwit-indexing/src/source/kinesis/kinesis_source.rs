@@ -99,7 +99,7 @@ pub struct KinesisSource {
 }
 
 impl fmt::Debug for KinesisSource {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
             "KinesisSource {{ source_id: {}, stream_name: {} }}",
@@ -173,13 +173,14 @@ impl KinesisSource {
 #[async_trait]
 impl Source for KinesisSource {
     async fn initialize(&mut self, ctx: &SourceContext) -> Result<(), ActorExitStatus> {
-        let shards = list_shards(
-            &self.kinesis_client,
-            &self.retry_params,
-            &self.stream_name,
-            None,
-        )
-        .await?;
+        let shards = ctx
+            .protect_future(list_shards(
+                &self.kinesis_client,
+                &self.retry_params,
+                &self.stream_name,
+                None,
+            ))
+            .await?;
         for shard in shards {
             self.spawn_shard_consumer(ctx, shard.shard_id);
         }
@@ -218,7 +219,7 @@ impl Source for KinesisSource {
 
                             for (i, record) in records.into_iter().enumerate() {
                                 match String::from_utf8(record.data.to_vec()) {
-                                    Ok(doc) if doc.len() > 0 => docs.push(doc),
+                                    Ok(doc) if !doc.is_empty() => docs.push(doc),
                                     Ok(_) => {
                                         warn!(
                                             stream_name = %self.stream_name,

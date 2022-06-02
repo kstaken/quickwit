@@ -18,6 +18,7 @@
 // along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 use std::collections::BTreeSet;
+use std::fmt::Display;
 use std::ops::{Range, RangeInclusive};
 use std::str::FromStr;
 
@@ -144,6 +145,12 @@ impl SplitState {
             SplitState::Published => "Published",
             SplitState::MarkedForDeletion => "MarkedForDeletion",
         }
+    }
+}
+
+impl Display for SplitState {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "{:?}", self)
     }
 }
 
